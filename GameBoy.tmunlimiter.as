@@ -1,5 +1,7 @@
 //! COMPOSE ROM.as
 
+//! COMPOSE ASCII.as
+
 
 const int Width = 161;
 const int Height = 145;
@@ -8,13 +10,68 @@ class GameBoy_t
 {
     array<uint8> Memory;
     MediaTrackerTrack@ TrianglesTrack;
+    bool CanRun = true;
 
     GameBoy_t()
     {
         for (uint Idx = 0; Idx <= 0x10000; Idx++)
         {
-            Memory.add(Cartridge[Idx]);
+            if (Idx >= Cartridge.length)
+            {
+                Memory.add(0);
+            }
+            else
+            {
+                Memory.add(Cartridge[Idx]);
+            }
         }
+
+        if (Memory[0x0143] == 0xC0)
+        {
+            console.error("This script does not support GameBoy Color (CGB) ROMs.");
+            CanRun = false;
+            return;
+        }
+
+        if (Memory[0x0147] != 0x00)
+        {
+            console.error("This script only supports RAW ROMs with no MBCs.");
+            CanRun = false;
+            return;
+        }
+
+        if (Memory[0x0148] != 0x00)
+        {
+            console.error("This script does not support Banked ROMs.");
+            CanRun = false;
+            return;
+        }
+
+        if (Memory[0x0149] != 0x00)
+        {
+            console.error("This script does not support on-cartridge RAM.");
+            CanRun = false;
+            return;
+        }
+
+        uint8 HeaderChecksum = 0;
+        for (uint16 address = 0x0134; address <= 0x014C; address++) 
+        {
+            HeaderChecksum = HeaderChecksum - Memory[address] - 1;
+        }
+        if (HeaderChecksum != Memory[0x014D])
+        {
+            console.error("Header checksum of ROM failed.");
+            CanRun = false;
+            return;
+        }
+
+        string GameName = "";
+        for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
+        {
+            GameName = GameName + ASCII[Memory[NameAddr]];
+        }
+        console.info("Game name: " + GameName);
     }
 
     int GetIdx(int x, int y)
