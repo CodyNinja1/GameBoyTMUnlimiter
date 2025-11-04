@@ -12,20 +12,8 @@ class GameBoy_t
     MediaTrackerTrack@ TrianglesTrack;
     bool CanRun = true;
 
-    GameBoy_t()
+    void CheckROMValidity()
     {
-        for (uint Idx = 0; Idx <= 0x10000; Idx++)
-        {
-            if (Idx >= Cartridge.length)
-            {
-                Memory.add(0);
-            }
-            else
-            {
-                Memory.add(Cartridge[Idx]);
-            }
-        }
-
         if (Memory[0x0143] == 0xC0)
         {
             console.error("This script does not support GameBoy Color (CGB) ROMs.");
@@ -55,9 +43,9 @@ class GameBoy_t
         }
 
         uint8 HeaderChecksum = 0;
-        for (uint16 address = 0x0134; address <= 0x014C; address++) 
+        for (uint16 Address = 0x0134; Address <= 0x014C; Address++) 
         {
-            HeaderChecksum = HeaderChecksum - Memory[address] - 1;
+            HeaderChecksum = HeaderChecksum - Memory[Address] - 1;
         }
         if (HeaderChecksum != Memory[0x014D])
         {
@@ -65,13 +53,31 @@ class GameBoy_t
             CanRun = false;
             return;
         }
+    }
 
-        string GameName = "";
-        for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
+    GameBoy_t()
+    {
+        // Note that this all happens at compiletime, not runtime
+        for (uint Address = 0; Address <= 0x10000; Address++)
         {
-            GameName = GameName + ASCII[Memory[NameAddr]];
+            if (Address >= Cartridge.length)
+            {
+                Memory.add(0);
+            }
+            else
+            {
+                Memory.add(Cartridge[Address]);
+            }
         }
-        console.info("Game name: " + GameName);
+        
+        CheckROMValidity();
+
+        // string GameName = "";
+        // for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
+        // {
+        //     GameName = GameName + ASCII[Memory[NameAddr]];
+        // }
+        // console.info("Game name: " + GameName);
     }
 
     int GetIdx(int x, int y)
