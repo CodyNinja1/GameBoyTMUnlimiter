@@ -89,13 +89,13 @@ class GameBoy_t
         
         CheckROMValidity();
 
-        // string GameName = "";
-        // for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
-        // {
-        //     // ASCII - From: ASCII.as
-        //     GameName = GameName + ASCII[Memory[NameAddr]];
-        // }
-        // console.info("Game name: " + GameName);
+        string GameName = "";
+        for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
+        {
+            // ASCII - From: ASCII.as
+            GameName = GameName + ASCII[Memory[NameAddr]];
+        }
+        console.info("Game name: " + GameName);
     }
 
     int GetIdx(int x, int y)
@@ -137,6 +137,12 @@ void onTick(TrackManiaRace@ Race)
         GameBoy.Memory[0xFF00] |= Left | Right;
     }
 
+    // This is needed to let the screen update.
+    GameBoy.Screen.setDirty();
+}
+
+void onFrame(TrackManiaRace@ race, GameCamVal& camVal)
+{
     for (uint x = 0; x < Width; x++)
     {
         for (uint y = 0; y < Height; y++)
