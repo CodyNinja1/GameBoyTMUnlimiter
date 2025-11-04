@@ -26,6 +26,7 @@ with open(argv[1], "r") as unlimiter_script_file:
                     for operand in operands:
                         try:
                             with open(operand, "r") as file_to_compose:
+                                output += f"// {operand}\n"
                                 lines_to_be_composed = file_to_compose.readlines()
                                 for c_line in lines_to_be_composed:
                                     output += c_line

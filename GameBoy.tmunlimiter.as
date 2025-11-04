@@ -2,6 +2,7 @@
 
 //! COMPOSE ASCII.as
 
+//! COMPOSE Instructions.as
 
 const int Width = 161;
 const int Height = 145;
@@ -11,6 +12,14 @@ class GameBoy_t
     array<uint8> Memory;
     MediaTrackerTrack@ TrianglesTrack;
     bool CanRun = true;
+
+    uint16 AF = 0;
+    uint16 BC = 0;
+    uint16 DE = 0;
+    uint16 HL = 0;
+
+    uint16 StackPointer = 0;
+    uint16 ProgramCounter = 0x0100;
 
     void CheckROMValidity()
     {
@@ -57,6 +66,9 @@ class GameBoy_t
 
     GameBoy_t()
     {
+        // From: Instructions.as
+        InitInstructions();
+
         // Note that this all happens at compiletime, not runtime
         for (uint Address = 0; Address <= 0x10000; Address++)
         {
@@ -66,6 +78,7 @@ class GameBoy_t
             }
             else
             {
+                // Cartridge - From: ROM.as
                 Memory.add(Cartridge[Address]);
             }
         }
@@ -75,6 +88,7 @@ class GameBoy_t
         // string GameName = "";
         // for (uint NameAddr = 0x0134; NameAddr < 0x0143; NameAddr++)
         // {
+        //     // ASCII - From: ASCII.as
         //     GameName = GameName + ASCII[Memory[NameAddr]];
         // }
         // console.info("Game name: " + GameName);
