@@ -4,7 +4,7 @@ Source code for a Game Boy (DMG only) emulator, written for TMUnlimiter (2.0.3).
 # Build
 Put your ROM as an angelscript file named ROM.as in the project, in the following format:
 ```angelscript
-const array<uint8> ROM = {
+const array<uint8> Cartridge = {
     0,
     1,
     255,

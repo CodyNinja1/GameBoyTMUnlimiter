@@ -13,7 +13,7 @@ class GameBoy_t
     {
         for (uint Idx = 0; Idx <= 0x10000; Idx++)
         {
-            Memory.add(ROM[Idx]);
+            Memory.add(Cartridge[Idx]);
         }
     }
 
