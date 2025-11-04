@@ -1,3 +1,6 @@
+//! COMPOSE ROM.as
+
+
 const int Width = 161;
 const int Height = 145;
 
@@ -10,7 +13,7 @@ class GameBoy_t
     {
         for (uint Idx = 0; Idx <= 0x10000; Idx++)
         {
-            Memory.add(0);
+            Memory.add(ROM[Idx]);
         }
     }
 
