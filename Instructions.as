@@ -134,11 +134,10 @@ class Instruction
     Instruction() {}
 }
 
-array<Instruction> Instructions = {};
-
-void InitInstructions()
+array<Instruction> InitInstructions()
 {
-    for (uint8 OpCode = 0; OpCode < 256; OpCode++)
+    array<Instruction> Instructions;
+    for (uint16 OpCode = 0; OpCode <= 255; OpCode++)
     {
         switch (OpCode)
         {
@@ -153,4 +152,6 @@ void InitInstructions()
                 break;
         }
     }
+
+    return Instructions;
 }

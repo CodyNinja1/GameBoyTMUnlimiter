@@ -5,14 +5,15 @@
 //! COMPOSE Instructions.as
 
 
-const int Width = 161;
-const int Height = 145;
+const int Width = 160;
+const int Height = 144;
 
 class GameBoy_t
 {
     array<uint8> Memory;
-    MediaTrackerTrack@ TrianglesTrack;
+    PlugBitmap Screen(Width, Height);
     bool CanRun = true;
+    array<Instruction> Instructions;
 
     uint16 AF = 0;
     uint16 BC = 0;
@@ -67,8 +68,10 @@ class GameBoy_t
 
     GameBoy_t()
     {
+        Screen.set_texFilter(TexFilter::Point);
+
         // From: Instructions.as
-        // InitInstructions();
+        Instructions = InitInstructions();
 
         // Note that this all happens at compiletime, not runtime
         for (uint Address = 0; Address <= 0x10000; Address++)
@@ -100,15 +103,9 @@ class GameBoy_t
         return (Width * y) + x;
     }
 
-    void SetPixelColor(int x, int y, Color Col)
+    void SetPixelColor(uint x, uint y, Color Col)
     {
-        TrianglesTrack.blocks[0].triangles_setVertexColor(GetIdx(x + 0, y + 0), Col);
-        if (x + 1 < Width and y + 1 < Height)
-        {
-            TrianglesTrack.blocks[0].triangles_setVertexColor(GetIdx(x + 1, y + 0), Col);
-            TrianglesTrack.blocks[0].triangles_setVertexColor(GetIdx(x + 0, y + 1), Col);
-            TrianglesTrack.blocks[0].triangles_setVertexColor(GetIdx(x + 1, y + 1), Col);
-        }
+        Screen.setPixel(x, y, Col);
     }
 }
 
@@ -139,6 +136,14 @@ void onTick(TrackManiaRace@ Race)
 
         GameBoy.Memory[0xFF00] |= Left | Right;
     }
+
+    for (uint x = 0; x < Width; x++)
+    {
+        for (uint y = 0; y < Height; y++)
+        {
+            GameBoy.SetPixelColor(x, y, Color(x / float(Width), y / float(Height), 1, 1));
+        }
+    }
 }
 
 bool onBindInputEvent(TrackManiaRace@ race, BindInputEvent@ inputEvent, uint eventTime)
@@ -166,10 +171,9 @@ bool onBindInputEvent(TrackManiaRace@ race, BindInputEvent@ inputEvent, uint eve
 
 void onTriggerGroupEnter(TrackManiaRace@ Race, TriggerGroup@ triggerGroup, GameBlock@ triggerBlock)
 {
-    InitInstructions();
     MediaTrackerClipPlayer@ InGamePlayer = Race.inGameClipPlayer;
     GameChallenge@ Map = Race.challenge;
     MediaTrackerClipGroup@ InGameClipGroup = Map.inGameClipGroup;
     auto Track = InGameClipGroup.clips[0].tracks[0];
-    @GameBoy.TrianglesTrack = Track;
+    Track.blocks[0].image_setImage(GameBoy.Screen);
 }
