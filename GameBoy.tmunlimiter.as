@@ -4,6 +4,7 @@
 
 //! COMPOSE Instructions.as
 
+
 const int Width = 161;
 const int Height = 145;
 
@@ -67,7 +68,7 @@ class GameBoy_t
     GameBoy_t()
     {
         // From: Instructions.as
-        InitInstructions();
+        // InitInstructions();
 
         // Note that this all happens at compiletime, not runtime
         for (uint Address = 0; Address <= 0x10000; Address++)
@@ -165,6 +166,7 @@ bool onBindInputEvent(TrackManiaRace@ race, BindInputEvent@ inputEvent, uint eve
 
 void onTriggerGroupEnter(TrackManiaRace@ Race, TriggerGroup@ triggerGroup, GameBlock@ triggerBlock)
 {
+    InitInstructions();
     MediaTrackerClipPlayer@ InGamePlayer = Race.inGameClipPlayer;
     GameChallenge@ Map = Race.challenge;
     MediaTrackerClipGroup@ InGameClipGroup = Map.inGameClipGroup;

@@ -113,13 +113,14 @@ class Instruction
     RegisterType Register2 = RegisterType::RT_NONE;
     ConditionType Condition = ConditionType::CT_NONE;
     uint8 Parameter = 0;
+    bool Valid = false;
 
-    Instruction(InstructionType iInst = InstructionType::IN_NOP, 
+    Instruction(uint8 iParameter,
+                InstructionType iInst = InstructionType::IN_NOP, 
                 AddressMode iAddrMode = AddressMode::AM_IMP,
                 RegisterType iRegister1 = RegisterType::RT_NONE,
                 RegisterType iRegister2 = RegisterType::RT_NONE,
-                ConditionType iCondition = ConditionType::CT_NONE,
-                uint8 iParameter = 0)
+                ConditionType iCondition = ConditionType::CT_NONE)
     {
         Inst = iInst;
         AddrMode = iAddrMode;
@@ -127,6 +128,7 @@ class Instruction
         Register2 = iRegister2;
         Condition = iCondition;
         Parameter = iParameter;
+        Valid = true;
     }
 
     Instruction() {}
@@ -141,9 +143,13 @@ void InitInstructions()
         switch (OpCode)
         {
             case 0x00:
-                Instructions.add(Instruction(InstructionType::IN_NOP, AddressMode::AM_IMP));
+                Instructions.add(Instruction(0, InstructionType::IN_NOP, AddressMode::AM_IMP));
+                break;
+            case 0x05:
+                Instructions.add(Instruction(0, InstructionType::IN_DEC, AddressMode::AM_R, RegisterType::RT_B));
                 break;
             default:
+                Instructions.add(Instruction());
                 break;
         }
     }
