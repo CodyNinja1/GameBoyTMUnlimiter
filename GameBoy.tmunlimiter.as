@@ -130,7 +130,7 @@ class GameBoy_t
             // else BaseAddr = 0x8000;
         }
 
-        uint16 TileAddr = BaseAddr | (uint16(TileId) << 16);
+        uint16 TileAddr = BaseAddr | (uint16(TileId) << 4);
 
         for (uint8 ByteIdx = 0; ByteIdx < 0xF; ByteIdx += 2)
         {
@@ -154,10 +154,10 @@ class GameBoy_t
     uint8 GetTileIdFromTileMap(uint8 x, uint8 y, uint8 TileMapIdx)
     {
         // x <<= 0;
-        y <<= 5;
-        TileMapIdx <<= 10;
+        uint16 ny = y << 5;
+        uint16 nTileMapIdx = TileMapIdx << 10;
 
-        return Memory[0b1001100000000000 | TileMapIdx | y | x];
+        return Memory[0b1001100000000000 | nTileMapIdx | ny | x];
     }
 
     void Render()
@@ -168,7 +168,8 @@ class GameBoy_t
         {
             for (uint16 y = 0; y <= 15; y++)
             {
-                BlitTileToScreen(x * 8, y * 8, GetTileIdFromTileMap(x, y, 0), false);
+                // TM flips the Y axis in images...
+                BlitTileToScreen(x * 8, (15 - int(y)) * 8, GetTileIdFromTileMap(x, y, 0), false);
             }
         }
     }
@@ -209,6 +210,25 @@ void onTick(TrackManiaRace@ Race)
 
 void onFrame(TrackManiaRace@ race, GameCamVal& camVal)
 {
+    GameBoy.Memory[0x8010] = 0x3C;
+    GameBoy.Memory[0x8011] = 0x7E; 
+    GameBoy.Memory[0x8012] = 0x42; 
+    GameBoy.Memory[0x8013] = 0x42; 
+    GameBoy.Memory[0x8014] = 0x42; 
+    GameBoy.Memory[0x8015] = 0x42; 
+    GameBoy.Memory[0x8016] = 0x42; 
+    GameBoy.Memory[0x8017] = 0x42; 
+    GameBoy.Memory[0x8018] = 0x7E; 
+    GameBoy.Memory[0x8019] = 0x5E; 
+    GameBoy.Memory[0x801A] = 0x7E; 
+    GameBoy.Memory[0x801B] = 0x0A; 
+    GameBoy.Memory[0x801C] = 0x7C; 
+    GameBoy.Memory[0x801D] = 0x56; 
+    GameBoy.Memory[0x801E] = 0x38; 
+    GameBoy.Memory[0x801F] = 0x7C;
+
+    GameBoy.Memory[0x9800] = 0x01;
+
     GameBoy.Render();
 }
 
