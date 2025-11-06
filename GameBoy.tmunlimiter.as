@@ -5,6 +5,8 @@
 //! COMPOSE Instructions.as
 
 
+bool Triggered = false;
+
 const int Width = 160;
 const int Height = 144;
 
@@ -169,6 +171,7 @@ class GameBoy_t
             for (uint16 y = 0; y <= 15; y++)
             {
                 // TM flips the Y axis in images...
+                // TODO: This might be me being stupid, and not TM. :shrug:
                 BlitTileToScreen(x * 8, (15 - int(y)) * 8, GetTileIdFromTileMap(x, y, 0), false);
             }
         }
@@ -179,6 +182,8 @@ GameBoy_t GameBoy();
 
 void onTick(TrackManiaRace@ Race)
 {
+    if (!Triggered) return;
+
     auto Vehicle = Race.getPlayingPlayer().vehicleCar;
     
     uint8 WantToRead = GameBoy.Memory[0xFF00] & 0xF0;
@@ -208,8 +213,13 @@ void onTick(TrackManiaRace@ Race)
     GameBoy.Screen.setDirty();
 }
 
+uint16 TileAddr = 0x9800;
+
 void onFrame(TrackManiaRace@ race, GameCamVal& camVal)
 {
+    if (!Triggered) return;
+
+    // TODO: Remove example code.
     GameBoy.Memory[0x8010] = 0x3C;
     GameBoy.Memory[0x8011] = 0x7E; 
     GameBoy.Memory[0x8012] = 0x42; 
@@ -227,13 +237,22 @@ void onFrame(TrackManiaRace@ race, GameCamVal& camVal)
     GameBoy.Memory[0x801E] = 0x38; 
     GameBoy.Memory[0x801F] = 0x7C;
 
-    GameBoy.Memory[0x9800] = 0x01;
+    if (TileAddr <= 0x99F3)
+    {
+        GameBoy.Memory[TileAddr] = 0x01;
+        if (TileAddr != 0x9800)
+        {
+            GameBoy.Memory[TileAddr - 1] = 0x00;
+        }
+        TileAddr++;
+    }
 
     GameBoy.Render();
 }
 
 bool onBindInputEvent(TrackManiaRace@ race, BindInputEvent@ inputEvent, uint eventTime)
-{   
+{  
+    if (!Triggered) return false;
     uint8 WantToRead = GameBoy.Memory[0xFF00] & 0xF0;
     if ((WantToRead & 0b00100000) == 0b00100000)
     {
@@ -257,6 +276,7 @@ bool onBindInputEvent(TrackManiaRace@ race, BindInputEvent@ inputEvent, uint eve
 
 void onTriggerGroupEnter(TrackManiaRace@ Race, TriggerGroup@ triggerGroup, GameBlock@ triggerBlock)
 {
+    Triggered = true;
     MediaTrackerClipPlayer@ InGamePlayer = Race.inGameClipPlayer;
     GameChallenge@ Map = Race.challenge;
     MediaTrackerClipGroup@ InGameClipGroup = Map.inGameClipGroup;
